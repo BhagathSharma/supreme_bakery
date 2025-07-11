@@ -21,11 +21,10 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
-    Authenticator Authenticator[] // For WebAuthn
+    Authenticator Authenticator[]
     Project       Project[]
     ProjectMember ProjectMember[]
     Task          Task[]          @relation("UserTasks")
-    Comment       Comment[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -135,26 +134,10 @@ model Task {
     dueDate     DateTime?
     priority    String?
 
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    Comment   Comment[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
     @@index([projectId])
     @@index([columnId])
     @@index([assigneeId])
-}
-
-model Comment {
-    id      String @id @default(cuid())
-    content String
-    taskId  String
-    userId  String
-    task    Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
-    user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    @@index([taskId])
-    @@index([userId])
 }
