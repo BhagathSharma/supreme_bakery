@@ -3,11 +3,29 @@
 import { useUpdateProject } from "@/hooks/useUpdateProject";
 import { useUserSearch } from "@/hooks/useUserSearch";
 import { useState } from "react";
-import { MoreHorizontal, Trash2, UserPlus2 } from "lucide-react";
+import {
+  IconButton,
+  Menu,
+  MenuItem,
+  Typography,
+  Box,
+  Avatar,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Select,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
+import { MoreHoriz, PersonAdd, Delete } from "@mui/icons-material";
 import { toast } from "sonner";
 
 export function MemberManager({ members, projectId, currentUserId }) {
-  const [openId, setOpenId] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [menuUserId, setMenuUserId] = useState(null);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedRole, setSelectedRole] = useState("CONTRIBUTOR");
@@ -19,16 +37,26 @@ export function MemberManager({ members, projectId, currentUserId }) {
   const currentUser = members.find((m) => m.user.id === currentUserId);
   const isPM = currentUser?.role === "PM";
 
+  const handleMenuOpen = (event, userId) => {
+    setAnchorEl(event.currentTarget);
+    setMenuUserId(userId);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setMenuUserId(null);
+  };
+
   const handleRoleChange = (userId, role) => {
     updateProject({ updateMembers: [{ userId, role }] });
-    setOpenId(null);
     toast.success("Role updated");
+    handleMenuClose();
   };
 
   const handleRemove = (userId) => {
     updateProject({ removeMembers: [userId] });
-    setOpenId(null);
     toast.success("Member removed");
+    handleMenuClose();
   };
 
   const handleInvite = (userId) => {
@@ -45,130 +73,164 @@ export function MemberManager({ members, projectId, currentUserId }) {
   };
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <Box display="flex" flexWrap="wrap" gap={2}>
       {members.map((m) => {
         const isSelf = m.user.id === currentUserId;
         const canManage = isPM && !isSelf && m.role !== "PM";
 
         return (
-          <div
+          <Box
             key={m.user.id}
-            className="relative bg-white border px-3 py-2 rounded-full flex items-center gap-2 shadow-sm"
+            display="flex"
+            alignItems="center"
+            gap={2}
+            p={1.5}
+            border={1}
+            borderColor="grey.300"
+            borderRadius={8}
+            bgcolor="white"
           >
-            <div className="flex flex-col text-sm">
-              <span className="text-gray-800 font-medium">
+            <Avatar src={m.user.image} alt={m.user.name || m.user.email} />
+            <Box>
+              <Typography variant="body2" fontWeight={600}>
                 {m.user.name || m.user.email}
-              </span>
-              <span className="text-xs text-gray-500">{m.role}</span>
-            </div>
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {m.role}
+              </Typography>
+            </Box>
 
             {canManage && (
-              <button
-                onClick={() =>
-                  setOpenId((prev) => (prev === m.user.id ? null : m.user.id))
-                }
-                className="p-1 hover:bg-gray-100 rounded-full"
-              >
-                <MoreHorizontal className="w-4 h-4 text-gray-600" />
-              </button>
-            )}
+              <>
+                <IconButton onClick={(e) => handleMenuOpen(e, m.user.id)}>
+                  <MoreHoriz fontSize="small" />
+                </IconButton>
 
-            {openId === m.user.id && canManage && (
-              <div className="absolute top-10 right-0 z-50 w-48 bg-white border rounded shadow-lg p-2">
-                <p className="text-xs text-gray-500 px-2 mb-2">Change Role:</p>
-                {roles.map((r) => (
-                  <button
-                    key={r}
-                    onClick={() => handleRoleChange(m.user.id, r)}
-                    className={`block w-full text-left px-3 py-1 text-sm rounded hover:bg-indigo-50 ${
-                      r === m.role
-                        ? "text-indigo-600 font-semibold"
-                        : "text-gray-700"
-                    }`}
-                  >
-                    {r}
-                  </button>
-                ))}
-                <div className="border-t mt-2 pt-2">
-                  <button
+                <Menu
+                  anchorEl={anchorEl}
+                  open={menuUserId === m.user.id}
+                  onClose={handleMenuClose}
+                >
+                  <Typography variant="caption" sx={{ px: 2, pt: 1 }}>
+                    Change Role:
+                  </Typography>
+                  {roles.map((r) => (
+                    <MenuItem
+                      key={r}
+                      onClick={() => handleRoleChange(m.user.id, r)}
+                      selected={r === m.role}
+                    >
+                      {r}
+                    </MenuItem>
+                  ))}
+                  <MenuItem
                     onClick={() => handleRemove(m.user.id)}
-                    className="flex items-center gap-2 text-sm text-red-600 hover:text-red-700 px-3 py-1"
+                    sx={{ color: "error.main", mt: 1 }}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Delete fontSize="small" sx={{ mr: 1 }} />
                     Remove Member
-                  </button>
-                </div>
-              </div>
+                  </MenuItem>
+                </Menu>
+              </>
             )}
-          </div>
+          </Box>
         );
       })}
 
       {isPM && (
-        <div className="relative">
-          <button
-            onClick={() => setInviteOpen((v) => !v)}
-            className="px-3 py-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 text-sm rounded-full flex items-center gap-1"
+        <>
+          <Button
+            variant="outlined"
+            startIcon={<PersonAdd />}
+            onClick={() => setInviteOpen(true)}
           >
-            <UserPlus2 className="w-4 h-4" />
             Add Member
-          </button>
+          </Button>
 
-          {inviteOpen && (
-            <div className="absolute z-50 mt-2 w-80 bg-white border shadow-lg rounded-lg p-4 text-gray-800">
-              <input
+          <Dialog
+            open={inviteOpen}
+            onClose={() => setInviteOpen(false)}
+            fullWidth
+            maxWidth="sm"
+          >
+            <DialogTitle>Invite Member</DialogTitle>
+            <DialogContent
+              sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+            >
+              <TextField
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by email"
-                className="w-full border px-3 py-2 rounded-md text-sm text-gray-800 bg-white"
+                fullWidth
               />
 
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                className="w-full mt-2 border px-3 py-2 rounded-md text-sm text-gray-800 bg-white"
-              >
-                {roles.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
-              </select>
+              <FormControl fullWidth>
+                <InputLabel>Role</InputLabel>
+                <Select
+                  native
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                >
+                  {roles.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
 
               {searching && (
-                <p className="text-xs text-gray-400 mt-2">Searching...</p>
+                <Typography variant="caption" color="text.secondary">
+                  Searching...
+                </Typography>
               )}
 
-              <ul className="mt-2 space-y-2 max-h-52 overflow-y-auto">
-                {users?.map((user) => {
-                  const alreadyAdded = members.some(
-                    (m) => m.user.id === user.id
-                  );
-
-                  return (
-                    <li
-                      key={user.id}
-                      onClick={() => {
-                        if (!alreadyAdded) handleInvite(user.id);
-                      }}
-                      className={`cursor-pointer px-3 py-2 rounded-md border text-sm ${
-                        alreadyAdded
-                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                          : "hover:bg-indigo-50 text-gray-800"
-                      }`}
-                    >
-                      <p className="font-medium">{user.name || user.email}</p>
-                      <p className="text-xs text-gray-500">
-                        {alreadyAdded ? "Already a member" : user.email}
-                      </p>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-        </div>
+              {users?.length > 0 && (
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  gap={1}
+                  maxHeight={250}
+                  overflow="auto"
+                >
+                  {users.map((user) => {
+                    const alreadyAdded = members.some(
+                      (m) => m.user.id === user.id
+                    );
+                    return (
+                      <Box
+                        key={user.id}
+                        p={1.5}
+                        border={1}
+                        borderColor={alreadyAdded ? "grey.200" : "grey.300"}
+                        borderRadius={2}
+                        sx={{
+                          cursor: alreadyAdded ? "not-allowed" : "pointer",
+                          bgcolor: alreadyAdded ? "grey.100" : "white",
+                          opacity: alreadyAdded ? 0.6 : 1,
+                        }}
+                        onClick={() => {
+                          if (!alreadyAdded) handleInvite(user.id);
+                        }}
+                      >
+                        <Typography fontWeight={500}>
+                          {user.name || user.email}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {alreadyAdded ? "Already a member" : user.email}
+                        </Typography>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setInviteOpen(false)}>Close</Button>
+            </DialogActions>
+          </Dialog>
+        </>
       )}
-    </div>
+    </Box>
   );
 }

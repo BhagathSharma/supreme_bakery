@@ -4,11 +4,30 @@ import { useParams } from "next/navigation";
 import { useProjectDetails } from "@/hooks/useProjectDetails";
 import { useDeleteProject } from "@/hooks/useDeleteProject";
 import { useUpdateProject } from "@/hooks/useUpdateProject";
+import { useAddColumn } from "@/hooks/useAddColumn";
+import { useUpdateColumn } from "@/hooks/useUpdateColumn";
+import { useDeleteColumn } from "@/hooks/useDeleteColumn";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useState } from "react";
-import { Trash, Pencil } from "lucide-react";
+
 import { MemberManager } from "@/components/MemberManager";
 import FullPageLoader from "@/components/FullPageLoader";
+import KanbanBoard from "@/components/KanbanBoard";
+
+import {
+  Box,
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Stack,
+  Divider,
+  Grid,
+  CircularProgress,
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 export default function ProjectDetailPage() {
   const { projectId } = useParams();
 
@@ -17,9 +36,11 @@ export default function ProjectDetailPage() {
     isLoading: projectLoading,
     error: projectError,
   } = useProjectDetails(projectId);
-  const { mutate: deleteProject, isPending: deleting } =
-    useDeleteProject(projectId);
+  const { mutate: deleteProject } = useDeleteProject(projectId);
   const { mutate: updateProject } = useUpdateProject(projectId);
+  const { mutate: addColumn } = useAddColumn(projectId);
+  const { mutate: updateColumn } = useUpdateColumn(null, projectId);
+  const { mutate: deleteColumn } = useDeleteColumn(null, projectId);
   const {
     data: user,
     isLoading: userLoading,
@@ -29,122 +50,152 @@ export default function ProjectDetailPage() {
   const [editMode, setEditMode] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [newColumnTitle, setNewColumnTitle] = useState("");
+  const [adding, setAdding] = useState(false);
 
-  // First handle user loading
-  if (userLoading) return <FullPageLoader />;
+  if (userLoading || projectLoading) return <FullPageLoader />;
   if (userError || !user)
-    return <p className="p-4 text-red-500">Failed to load user</p>;
-
-  // Then handle project loading
-  if (projectLoading) return <FullPageLoader />;
+    return <Typography color="error">Failed to load user</Typography>;
   if (projectError || !project)
-    return <div className="p-6 text-red-500">Failed to load project.</div>;
+    return <Typography color="error">Failed to load project</Typography>;
 
   const handleUpdate = () => {
     updateProject({ name, description });
     setEditMode(false);
   };
 
+  const handleRenameColumn = (columnId, newTitle) => {
+    updateColumn({ columnId, title: newTitle });
+  };
+
+  const handleDeleteColumn = (columnId) => {
+    deleteColumn({ columnId });
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white px-6 py-10">
-      <div className="max-w-7xl mx-auto space-y-10">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-          <div>
+    <Box
+      minHeight="100vh"
+      py={8}
+      px={3}
+      sx={{ background: "linear-gradient(to bottom right, #eef2ff, #ffffff)" }}
+    >
+      <Container maxWidth="lg">
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          justifyContent="space-between"
+          spacing={4}
+        >
+          <Box flex={1}>
             {editMode ? (
-              <div className="space-y-2">
-                <input
-                  className="text-3xl font-bold text-gray-800 border border-gray-300 px-4 py-2 rounded-md w-full"
+              <Stack spacing={2}>
+                <TextField
+                  label="Project Name"
+                  variant="outlined"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  fullWidth
                 />
-                <textarea
-                  className="w-full border px-4 py-2 rounded-md text-gray-700"
+                <TextField
+                  label="Description"
+                  variant="outlined"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
+                  fullWidth
+                  multiline
                   rows={2}
                 />
-                <button
+                <Button
                   onClick={handleUpdate}
-                  className="mt-1 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition"
+                  variant="contained"
+                  color="primary"
                 >
                   Save Changes
-                </button>
-              </div>
+                </Button>
+              </Stack>
             ) : (
               <>
-                <h1 className="text-4xl font-bold text-gray-900">
+                <Typography variant="h4" fontWeight={600} color="text.primary">
                   {project.name}
-                </h1>
-                <p className="text-gray-600 mt-1">{project.description}</p>
+                </Typography>
+                <Typography variant="body1" color="text.secondary" mt={1}>
+                  {project.description}
+                </Typography>
               </>
             )}
-          </div>
+          </Box>
 
-          <div className="flex gap-2">
-            <button
+          <Stack direction="row" spacing={2}>
+            <Button
+              variant="outlined"
+              startIcon={<EditIcon />}
               onClick={() => {
                 setName(project.name || "");
                 setDescription(project.description || "");
                 setEditMode(true);
               }}
-              className="px-3 py-2 bg-white hover:bg-gray-100 text-gray-800 rounded-md shadow-sm flex items-center gap-2"
             >
-              <Pencil className="w-4 h-4" />
               Edit
-            </button>
-
-            <button
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
               onClick={() => deleteProject()}
-              className="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-md shadow-sm flex items-center gap-2"
             >
-              <Trash className="w-4 h-4" />
               Delete
-            </button>
-          </div>
-        </div>
+            </Button>
+          </Stack>
+        </Stack>
 
-        {/* Members */}
-        <div>
-          <h2 className="text-lg font-semibold text-gray-800 mb-2">
+        <Box mt={6}>
+          <Typography variant="h6" fontWeight={500} gutterBottom>
             Team Members
-          </h2>
+          </Typography>
           <MemberManager
             members={project.members}
             projectId={projectId}
             currentUserId={user.id}
           />
-        </div>
+        </Box>
 
-        {/* Kanban Board */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {project.columns.map((column) => (
-            <div
-              key={column.id}
-              className="bg-white border rounded-xl p-4 shadow hover:shadow-md transition"
-            >
-              <h3 className="text-lg font-bold text-gray-800 mb-3">
-                {column.title}
-              </h3>
-              <ul className="space-y-3">
-                {column.tasks.map((task) => (
-                  <li
-                    key={task.id}
-                    className="p-3 bg-gray-50 hover:bg-gray-100 border rounded-md cursor-pointer shadow-sm"
-                  >
-                    <h4 className="font-medium text-gray-800">{task.title}</h4>
-                    {task.description && (
-                      <p className="text-sm text-gray-600">
-                        {task.description}
-                      </p>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+        <Divider sx={{ my: 4 }} />
+
+        <Stack direction="row" spacing={2} alignItems="center" mb={4}>
+          <TextField
+            label="New Column Title"
+            value={newColumnTitle}
+            onChange={(e) => setNewColumnTitle(e.target.value)}
+            fullWidth
+            sx={{ maxWidth: 400 }}
+          />
+          <Button
+            variant="contained"
+            disabled={!newColumnTitle || adding}
+            onClick={() => {
+              setAdding(true);
+              addColumn(
+                { title: newColumnTitle },
+                {
+                  onSuccess: () => {
+                    setNewColumnTitle("");
+                    setAdding(false);
+                  },
+                  onError: () => setAdding(false),
+                }
+              );
+            }}
+          >
+            {adding ? <CircularProgress size={20} /> : "Add Column"}
+          </Button>
+        </Stack>
+
+        <KanbanBoard
+          columns={project.columns}
+          onRenameColumn={handleRenameColumn}
+          onDeleteColumn={handleDeleteColumn}
+          projectId={projectId}
+        />
+      </Container>
+    </Box>
   );
 }

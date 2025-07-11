@@ -2,8 +2,18 @@
 
 import { useState } from "react";
 import { useCreateProject } from "@/hooks/useCreateProject";
-import { Dialog } from "@headlessui/react";
-import { Plus, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  IconButton,
+  CircularProgress,
+  Typography,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 
 export function NewProjectModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +22,7 @@ export function NewProjectModal() {
 
   const { mutate, isPending } = useCreateProject();
 
-  function handleSubmit(e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
     mutate(
       { name, description },
@@ -24,87 +34,86 @@ export function NewProjectModal() {
         },
       }
     );
-  }
+  };
 
   return (
     <>
-      <button
+      <Button
+        variant="contained"
+        color="primary"
+        startIcon={<AddIcon />}
         onClick={() => setIsOpen(true)}
-        className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white text-sm font-medium rounded-xl shadow"
+        sx={{
+          textTransform: "none",
+          borderRadius: "12px",
+          boxShadow: 2,
+          background: "linear-gradient(to right, #6366f1, #8b5cf6)",
+          "&:hover": {
+            background: "linear-gradient(to right, #4f46e5, #7c3aed)",
+          },
+        }}
       >
-        <Plus size={18} />
         Create Project
-      </button>
+      </Button>
 
       <Dialog
         open={isOpen}
         onClose={() => setIsOpen(false)}
-        className="relative z-50"
+        maxWidth="sm"
+        fullWidth
       >
-        {/* Background Overlay */}
-        <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm"
-          aria-hidden="true"
-        />
+        <DialogTitle>
+          <Typography
+            variant="h6"
+            color="primary"
+            display="flex"
+            gap={1}
+            alignItems="center"
+          >
+            🚀 New Project
+          </Typography>
+        </DialogTitle>
 
-        {/* Modal Panel */}
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 border border-gray-200">
-            <Dialog.Title className="text-2xl font-semibold text-indigo-700 mb-4 flex items-center gap-2">
-              🚀 New Project
-            </Dialog.Title>
+        <form onSubmit={handleSubmit}>
+          <DialogContent
+            dividers
+            sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+          >
+            <TextField
+              label="Project Name"
+              placeholder="Plan Pilot"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              fullWidth
+            />
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Project Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-800 mb-1">
-                  Project Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Plan Pilot"
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 placeholder:text-gray-700 text-gray-900 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
+            <TextField
+              label="Description"
+              placeholder="Managing myself using myself"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              multiline
+              rows={3}
+              fullWidth
+            />
+          </DialogContent>
 
-              {/* Description */}
-              <div>
-                <label className="block text-sm font-medium text-gray-800 mb-1">
-                  Description
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="Managing myself using myself"
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 placeholder:text-gray-700 text-gray-900 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </div>
-
-              {/* Buttons */}
-              <div className="flex justify-end gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  className="px-4 py-2 text-sm rounded-md text-gray-600 bg-gray-100 hover:bg-gray-200"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="px-4 py-2 text-sm rounded-md bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 disabled:opacity-70"
-                >
-                  {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Create
-                </button>
-              </div>
-            </form>
-          </Dialog.Panel>
-        </div>
+          <DialogActions sx={{ px: 3, py: 2 }}>
+            <Button onClick={() => setIsOpen(false)} color="inherit">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={isPending}
+              startIcon={isPending && <CircularProgress size={16} />}
+            >
+              Create
+            </Button>
+          </DialogActions>
+        </form>
       </Dialog>
     </>
   );

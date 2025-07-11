@@ -1,4 +1,13 @@
 import { signIn } from "../auth";
+import {
+  Box,
+  Button,
+  Container,
+  TextField,
+  Typography,
+  Paper,
+} from "@mui/material";
+
 export function SignInForm() {
   const handleFormAction = async (formData) => {
     "use server";
@@ -6,25 +15,50 @@ export function SignInForm() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <form
-        action={handleFormAction}
-        className="bg-white shadow-md rounded-lg p-6 w-full max-w-md flex flex-col gap-4"
+    <Container maxWidth="sm">
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        gap={4}
+        mt={6}
       >
-        <input
-          type="email"
-          name="email"
-          placeholder="Enter your email"
-          className="border border-gray-300 p-2 rounded-md"
-          required
-        />
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
+        <Typography variant="h5" fontWeight={600}>
+          Sign In
+        </Typography>
+
+        <Paper
+          elevation={3}
+          component="form"
+          action={handleFormAction}
+          sx={{
+            p: 4,
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            gap: 3,
+          }}
         >
-          Sign in with Mailgun
-        </button>
-      </form>
-    </div>
+          <TextField
+            type="email"
+            name="email"
+            label="Email"
+            placeholder="you@example.com"
+            required
+            fullWidth
+          />
+
+          <Button
+            type="submit"
+            variant="contained"
+            color="success"
+            fullWidth
+            size="large"
+          >
+            Sign in with Mailgun
+          </Button>
+        </Paper>
+      </Box>
+    </Container>
   );
 }

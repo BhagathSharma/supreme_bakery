@@ -1,12 +1,24 @@
 "use client";
 
+import { CircularProgress, Typography, Box, Backdrop } from "@mui/material";
+
 export default function FullPageLoader() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-gray-600">Loading, please wait...</p>
-      </div>
-    </div>
+    <Backdrop
+      open
+      sx={{
+        zIndex: (theme) => theme.zIndex.modal + 1,
+        color: "#fff",
+        backgroundColor: "rgba(255, 255, 255, 0.8)",
+        backdropFilter: "blur(4px)",
+      }}
+    >
+      <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
+        <CircularProgress color="primary" />
+        <Typography variant="body2" color="text.secondary">
+          Loading, please wait...
+        </Typography>
+      </Box>
+    </Backdrop>
   );
 }
