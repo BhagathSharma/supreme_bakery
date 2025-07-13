@@ -1,5 +1,6 @@
 # 🧭 PlanPilot – A Simple Project Management Tool
-[![codecov](https://codecov.io/gh/BhagathSharma/supreme_bakery/branch/main/graph/badge.svg)](https://codecov.io/gh/BhagathSharma/supreme_bakery)
+[![codecov](https://codecov.io/gh/BhagathSharma/supreme_bakery/branch/main/graph/badge.svg)](https://codecov.io/gh/BhagathSharma/supreme_bakery) 
+
 **PlanPilot** is a college project built using [Next.js](https://nextjs.org) with PostgreSQL via Prisma and email-based authentication using Mailgun. This is a starter-friendly project focused on functionality over production security.
 
 ---
