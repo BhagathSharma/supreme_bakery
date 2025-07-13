@@ -14,6 +14,7 @@ const config = {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
   setupFilesAfterEnv: ["./jest.setup.mjs"],
+  coverageReporters: ['text', 'lcov', 'json'],
 };
 
 export default createJestConfig(config);

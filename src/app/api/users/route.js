@@ -17,7 +17,7 @@ export async function GET(req) {
         { email: { contains: query, mode: "insensitive" } },
         { name: { contains: query, mode: "insensitive" } },
       ],
-      NOT: { id: user.id }, // Optional: exclude self
+      NOT: { id: user.id },
     },
     take: 10,
     select: {

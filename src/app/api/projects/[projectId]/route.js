@@ -52,7 +52,7 @@ export async function GET(req, { params }) {
 }
 export async function PATCH(req, { params }) {
   const user = await getSessionUser();
-  const { projectId } = params;
+  const { projectId } = await params;
   const body = await req.json();
 
   const project = await prisma.project.findFirst({
@@ -148,7 +148,7 @@ export async function PATCH(req, { params }) {
 
 export async function DELETE(req, { params }) {
   const user = await getSessionUser();
-  const projectId = params.projectId;
+  const { projectId } = await params;
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },

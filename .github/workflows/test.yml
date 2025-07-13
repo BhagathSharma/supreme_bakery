@@ -1,0 +1,25 @@
+name: Run Tests & Coverage
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10.12.4
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - run: pnpm install
+      - run: pnpm test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
