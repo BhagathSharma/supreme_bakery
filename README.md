@@ -13,7 +13,7 @@
 
 Based in India and operating internationally, OUTAKE Studios works with a network of passionate freelancers. The studio’s commitment is not just business—it’s about delivering outstanding creative quality and customer satisfaction.
 
-Location: [Google Maps](https://share.google/uNoDUzLHFSPFFDFMS)
+Location: https://maps.app.goo.gl/vNdDU9hCdhuXTkq4A?g_st=ic
 
 ---
 
