@@ -1,27 +1,57 @@
-# 🧭 PlanPilot – A Simple Project Management Tool
-[![codecov](https://codecov.io/gh/BhagathSharma/supreme_bakery/branch/main/graph/badge.svg)](https://codecov.io/gh/BhagathSharma/supreme_bakery) 
-
-**PlanPilot** is a college project built using [Next.js](https://nextjs.org) with PostgreSQL via Prisma and email-based authentication using Mailgun. This is a starter-friendly project focused on functionality over production security.
+# PlanPilot – A Simple Project Management Tool  
+[![codecov](https://codecov.io/gh/BhagathSharma/supreme_bakery/branch/main/graph/badge.svg)](https://codecov.io/gh/BhagathSharma/supreme_bakery)
 
 ---
 
-## ⚙️ Tech Stack
+## Introduction
 
-* **Framework:** Next.js (App Router)
-* **Database:** PostgreSQL
-* **ORM:** Prisma
-* **Auth:** NextAuth.js + Mailgun Email Login
-* **Package Manager:** pnpm
+**OUTAKE Studios** is a creative production house specializing in:
+
+- Wedding planning, photography, and videography  
+- Commercial advertisements and promotional videos  
+- Graphic design and computer-generated (CG) visuals  
+
+Based in India and operating internationally, OUTAKE Studios works with a network of passionate freelancers. The studio’s commitment is not just business—it’s about delivering outstanding creative quality and customer satisfaction.
+
+Location: https://maps.app.goo.gl/vNdDU9hCdhuXTkq4A?g_st=ic
 
 ---
 
-## 🚀 Getting Started
+## Project Goal
+
+The goal of **PlanPilot** is to deliver a clean, focused project management tool tailored for small teams and creative agencies like OUTAKE Studios.
+
+It helps:
+
+- Organize and track tasks using a Kanban-style board  
+- Support role-based collaboration (PMs, Contributors, Viewers)  
+- Provide secure, email-based authentication using magic links  
+- Automate testing and reporting for maintainability
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js (App Router)
+- **Database:** PostgreSQL (hosted on Aiven.io)
+- **ORM:** Prisma
+- **Authentication:** Auth.js (Magic link) + Mailgun
+- **UI Library:** MUI (migrated from Tailwind CSS)
+- **Data Fetching:** React Query
+- **Notifications:** Sonner Toast
+- **Testing:** Jest
+- **CI/CD:** GitHub Actions + Codecov
+- **Deployment:** Vercel
+
+---
+
+## Getting Started
 
 ### 1. Install dependencies
 
 ```bash
 pnpm install
-```
+````
 
 ---
 
@@ -30,7 +60,7 @@ pnpm install
 Add your PostgreSQL connection string to `.env`:
 
 ```env
-DATABASE_URL=your postgres
+DATABASE_URL=your_postgres_url
 ```
 
 Run the database migration:
@@ -46,13 +76,15 @@ pnpm exec prisma migrate dev
 Add this to `.env`:
 
 ```env
-AUTH_SECRET="secret"
+AUTH_SECRET=your_auth_secret
 NEXTAUTH_URL=http://localhost:3000
+MAIL_SENDER=your_sender_email
+MAIL_KEY=your_mailgun_api_key
 ```
 
-Authentication is configured in `src/auth.js` using Mailgun:
+Authentication is configured in `src/auth.js`:
 
-```js
+```ts
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/prisma";
@@ -63,14 +95,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   providers: [
     Mailgun({
-      from: "your sender",
-      apiKey: "your api key",
+      from: process.env.MAIL_SENDER,
+      apiKey: process.env.MAIL_KEY,
     }),
   ],
 });
 ```
-
-
 
 ---
 
@@ -82,6 +112,40 @@ pnpm run dev
 
 Visit [http://localhost:3000](http://localhost:3000) to view the app.
 
+---
 
+## Features
 
+* Task creation, editing, and deletion
+* Email-based login using magic links
+* Role-based access (PM, Contributor, Viewer)
+* Projects with column-based task organization (Kanban layout)
+* Button-based task movement
+* Unit and integration tests using Jest
+* GitHub Actions CI
+* Codecov for test coverage
+* Vercel deployment
 
+---
+
+## Notes
+
+* Tailwind CSS was replaced by MUI due to better compatibility with GenAI-assisted UI generation.
+* Most UI components and React hooks were generated using GenAI and manually customized.
+* Email service setup required debugging Mailgun’s API key mismatch.
+* Initial drag-and-drop support was removed due to implementation complexity.
+* Coverage tracking was introduced with Codecov via GitHub Actions.
+
+---
+
+## License
+
+MIT – Free to use and extend for learning and small-team projects.
+
+---
+
+## About OUTAKE Studios
+
+> "We do Wedding planning, wedding photography, videography, professional advertisements, graphic designing and CG works. We take works throughout India and outside India. We are a team of freelance workers who do what we are passionate about. For us, it's not only about the business—our main concern is the quality of work and the joy of satisfying our customers with commitment."
+
+Google Maps: [https://share.google/uNoDUzLHFSPFFDFMS](https://share.google/uNoDUzLHFSPFFDFMS)
