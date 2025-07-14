@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function PATCH(req, { params }) {
   const user = await getSessionUser();
-  const { columnId } = params;
+  const { columnId } = await params;
   const { title, order } = await req.json();
 
   const column = await prisma.column.findUnique({
